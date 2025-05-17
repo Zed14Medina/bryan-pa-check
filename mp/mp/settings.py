@@ -134,7 +134,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-LOGIN_REDORECT_URL = 'role_page'
+LOGIN_REDIRECT_URL = 'role_page'
 LOGOUT_REDIRECT_URL = 'login'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ensure sessions are being stored in the database
+SESSION_COOKIE_AGE = 3600  # 1 hour, adjust as necessary
+DEBUG = True  # Set to False in production
+
 
 

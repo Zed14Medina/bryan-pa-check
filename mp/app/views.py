@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
 from django.contrib.auth.models import Group
 
+from django.contrib.auth.models import User
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -13,10 +15,11 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('role_page')  # Redirect to role page after login
+            return redirect('role_page')  # Redirect after successful login
         else:
             return render(request, 'app/login.html', {'error': 'Invalid credentials'})
     return render(request, 'app/login.html')
+
 
 # User Signup View
 def signup(request):
@@ -86,10 +89,14 @@ def delete_product(request, pk):
     return render(request, 'delete_product.html', {'product': product})
 
 def role_page(request):
-    if request.user.groups.filter(name='Seller').exists():
-        return redirect('seller_home')  # Redirect to seller home if the user is a seller
-    elif request.user.groups.filter(name='Buyer').exists():
-        return redirect('buyer_home')  # Redirect to buyer home if the user is a buyer
+    if request.user.is_authenticated:
+        if request.user.groups.filter(name='Seller').exists():
+            return redirect('seller_home')  # Redirect to seller home if the user is a seller
+        elif request.user.groups.filter(name='Buyer').exists():
+            return redirect('buyer_home')  # Redirect to buyer home if the user is a buyer
+        else:
+            return render(request, 'app/rolepage.html')  # Show the role selection page
     else:
-        return render(request, 'app/rolepage.html')  # Show the role selection page
+        return redirect('login')  # Force redirect to login if the user is not authenticated
+
 
