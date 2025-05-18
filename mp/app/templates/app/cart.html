@@ -174,47 +174,56 @@
     </a>
 
     <div class="headerCart">
-        <div id="nameCart">Cart</div>
-        <div></div> 
-    </div>
+    <div id="nameCart">Cart</div>
+    <div></div> 
+</div>
 
-    <div class="cart-content" id="cart-items">
-        <div class="product-container" id="cart-items-container">
-            <!-- Example Product 1 -->
-            <div id="product-1" class="cart-item">
-                <span>Product 1</span>
-                <div class="quantity-container">
-                    <button class="quantity-btn" onclick="decreaseQuantity(1)">-</button>
-                    <input type="number" class="quantity-input" id="quantity-1" value="1" min="1" readonly>
-                    <button class="quantity-btn" onclick="increaseQuantity(1)">+</button>
+<div class="cart-content" id="cart-items">
+    <div class="product-container" id="cart-items-container">
+        {% if cart_items %}
+            {% for item in cart_items %}
+                <div id="product-{{ item.id }}" class="cart-item">
+                    <div class="product-details">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-image">
+                        {% endif %}
+                        <span>{{ item.product.name }}</span>
+                    </div>
+                    <div class="quantity-container">
+                        <form method="post" action="{% url 'update_cart' item.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="decrease">
+                            <button type="submit" class="quantity-btn">-</button>
+                        </form>
+                        <input type="number" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
+                        <form method="post" action="{% url 'update_cart' item.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="increase">
+                            <button type="submit" class="quantity-btn">+</button>
+                        </form>
+                    </div>
+                    <span>${{ item.get_total }}</span>
+                    <form method="post" action="{% url 'update_cart' item.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="remove-btn">Remove</button>
+                    </form>
                 </div>
-                <span>$30.00</span>
-                <button class="remove-btn" onclick="openRemoveModal(1)">Remove</button>
+            {% endfor %}
+            
+            <div style="text-align: right; margin-top: 20px; font-weight: bold; font-size: 20px;">
+                Total: ${{ cart.get_total_price }}
             </div>
-
-            <!-- Example Product 2 -->
-            <div id="product-2" class="cart-item">
-                <span>Product 2</span>
-                <div class="quantity-container">
-                    <button class="quantity-btn" onclick="decreaseQuantity(2)">-</button>
-                    <input type="number" class="quantity-input" id="quantity-2" value="1" min="1" readonly>
-                    <button class="quantity-btn" onclick="increaseQuantity(2)">+</button>
-                </div>
-                <span>$20.00</span>
-                <button class="remove-btn" onclick="openRemoveModal(2)">Remove</button>
+            
+            <a href="{% url 'checkout_page' %}">
+                <button class="checkout-btn2">Proceed to Checkout</button>
+            </a>
+        {% else %}
+            <div class="empty-cart-message">
+                Your cart is empty. <a href="{% url 'product_list' %}">Continue shopping</a> to add products to your cart.
             </div>
-        </div>
-
-        <button class="checkout-btn2" onclick="saveCartAndProceed()">Proceed to Checkout</button>
+        {% endif %}
     </div>
-
-    <!-- Custom Remove Confirmation Modal -->
-    <div id="removeModal">
-        <div id="removeModalContent">
-            <h2>Are you sure you want to remove the product?</h2>
-            <button class="modal-btn2" onclick="removeProduct()">Yes, Remove</button>
-            <button class="modal-btn2" onclick="closeRemoveModal()">No, Keep</button>
-        </div>
-    </div>
+</div>
 </body>
 </html>
